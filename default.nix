@@ -14,13 +14,15 @@ stdenv.mkDerivation rec {
     astyle
 
     # Emulation
-    qemu OVMF
+    qemu
+    OVMF
 
     # UEFI
     gnu-efi
 
     # Image creation
-    parted mtools # For UEFI image building
+    parted
+    mtools
   ];
 
   GNU_EFI_DIR=pkgs.gnu-efi; # GNU EFI dir for headers
