@@ -1,10 +1,6 @@
 BOOT_UEFI_BUILD_DIR=build/boot/uefi
 BOOT_UEFI_SRC_DIR=boot/uefi
 
-BOOT_UEFI_CC=gcc
-BOOT_UEFI_LD=ld
-BOOT_UEFI_OBJCOPY=objcopy
-
 BOOT_UEFI_SRC_FILES=$(wildcard $(BOOT_UEFI_SRC_DIR)/*.c)
 BOOT_UEFI_OBJ_FILES=$(patsubst $(BOOT_UEFI_SRC_DIR)/%.c,$(BOOT_UEFI_BUILD_DIR)/%.o, $(BOOT_UEFI_SRC_FILES))
 
@@ -18,13 +14,13 @@ BOOT_UEFI_OBJCOPY_SECTIONS=.text .sdata .data .dynamic .dynsym .rel .rela .reloc
 BOOT_UEFI_OBJCOPY_FLAGS=$(foreach s,$(BOOT_UEFI_OBJCOPY_SECTIONS),-j $(s)) --target=efi-app-$(TARGET)
 
 $(BOOT_UEFI_BUILD_DIR)/%.o: $(BOOT_UEFI_SRC_DIR)/%.c $(BOOT_UEFI_BUILD_DIR)
-	$(BOOT_UEFI_CC) $< $(BOOT_UEFI_CFLAGS) -o $@
+	$(CC) $< $(BOOT_UEFI_CFLAGS) -o $@
 
 $(BOOT_UEFI_BUILD_DIR)/main.so: $(BOOT_UEFI_OBJ_FILES)
-	ld $^ $(BOOT_UEFI_LDFLAGS) -o $@
+	$(LD) $^ $(BOOT_UEFI_LDFLAGS) -o $@
 
 $(BOOT_UEFI_BUILD_DIR)/main.efi: $(BOOT_UEFI_BUILD_DIR)/main.so
-	objcopy $(BOOT_UEFI_OBJCOPY_FLAGS) $< $@
+	$(OBJCOPY) $(BOOT_UEFI_OBJCOPY_FLAGS) $< $@
 
 $(BOOT_UEFI_BUILD_DIR):
 	mkdir -p $(BOOT_UEFI_BUILD_DIR)

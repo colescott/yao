@@ -2,7 +2,11 @@ TARGET=x86_64
 BUILD_DIR=build
 FORMAT_DIRS=uefi/src
 
+CC=$(target)-gcc
+LD=$(target)-ld
+OBJCOPY=$(target)-objcopy
 QEMU=qemu-system-$(TARGET)
+
 QEMU_FLAGS=-s -cpu qemu64 -bios ${OVMF_DIR}/OVMF.fd -net none
 
 .PHONY: all
