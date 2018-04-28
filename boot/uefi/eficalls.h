@@ -8,7 +8,8 @@ EFI_SYSTEM_TABLE *sys_table;
 EFI_BOOT_SERVICES *boot;
 EFI_RUNTIME_SERVICES *runtime;
 
-static inline EFI_STATUS allocate_pages(EFI_ALLOCATE_TYPE atype, EFI_MEMORY_TYPE mtype, UINTN num_pages, EFI_PHYSICAL_ADDRESS *memory)
+static inline EFI_STATUS allocate_pages(EFI_ALLOCATE_TYPE atype, EFI_MEMORY_TYPE mtype, UINTN num_pages,
+                                        EFI_PHYSICAL_ADDRESS *memory)
 {
     return uefi_call_wrapper(boot->AllocatePages, 4, atype, mtype, num_pages, memory);
 }
@@ -28,7 +29,8 @@ static inline EFI_STATUS free_pool(void *buffer)
     return uefi_call_wrapper(boot->FreePool, 1, buffer);
 }
 
-static inline EFI_STATUS get_memory_map(UINTN *size, EFI_MEMORY_DESCRIPTOR *map, UINTN *key, UINTN *descr_size, UINT32 *descr_version)
+static inline EFI_STATUS get_memory_map(UINTN *size, EFI_MEMORY_DESCRIPTOR *map, UINTN *key, UINTN *descr_size,
+                                        UINT32 *descr_version)
 {
     return uefi_call_wrapper(boot->GetMemoryMap, 5, size, map, key, descr_size, descr_version);
 }
@@ -63,12 +65,14 @@ static const CHAR16 *memory_types[] = {
 
 static inline const CHAR16 *memory_type_to_str(UINT32 type)
 {
-    if (type > (sizeof(memory_types) / sizeof(CHAR16)))
+    if(type > (sizeof(memory_types) / sizeof(CHAR16))) {
         return L"Unknown";
+    }
 
     return memory_types[type];
 }
 
-EFI_STATUS memory_map(EFI_MEMORY_DESCRIPTOR **map_buf, UINTN *map_size, UINTN *map_key, UINTN *desc_size, UINT32 *desc_version);
+EFI_STATUS memory_map(EFI_MEMORY_DESCRIPTOR **map_buf, UINTN *map_size, UINTN *map_key, UINTN *desc_size,
+                      UINT32 *desc_version);
 
 #endif // EFICALLS_H

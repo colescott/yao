@@ -6,7 +6,7 @@ EFI_SYSTEM_TABLE *sys_table;
 EFI_BOOT_SERVICES *boot;
 EFI_RUNTIME_SERVICES *runtime;
 
-EFI_STATUS EFIAPI efi_main (EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable)
+EFI_STATUS EFIAPI efi_main(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable)
 {
     InitializeLib(ImageHandle, SystemTable);
     sys_table = SystemTable;
@@ -14,10 +14,11 @@ EFI_STATUS EFIAPI efi_main (EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTabl
     runtime = sys_table->RuntimeServices;
 
     // Check that header is the correct size
-    if (CheckCrc(sys_table->Hdr.HeaderSize, &sys_table->Hdr) != TRUE)
+    if(CheckCrc(sys_table->Hdr.HeaderSize, &sys_table->Hdr) != TRUE) {
         return EFI_LOAD_ERROR;
+    }
 
-    uefi_call_wrapper(ST->ConOut->SetAttribute, 2, ST->ConOut, EFI_LIGHTGRAY|EFI_BACKGROUND_BLACK);
+    uefi_call_wrapper(ST->ConOut->SetAttribute, 2, ST->ConOut, EFI_LIGHTGRAY | EFI_BACKGROUND_BLUE);
     uefi_call_wrapper(ST->ConOut->ClearScreen, 1, ST->ConOut);
     uefi_call_wrapper(ST->ConOut->OutputString, 2, ST->ConOut, L"\n");
 
@@ -26,8 +27,9 @@ EFI_STATUS EFIAPI efi_main (EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTabl
     UINT32 desc_version;
     UINTN size;
     UINTN map_key;
-    
+
     EFI_STATUS err = memory_map(&buf, &size, &map_key, &desc_size, &desc_version);
+
     if(err != EFI_SUCCESS) {
         uefi_call_wrapper(ST->ConOut->OutputString, 2, ST->ConOut, L"Failed to get memory map!\n");
         return EFI_LOAD_ERROR;
@@ -40,39 +42,46 @@ EFI_STATUS EFIAPI efi_main (EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTabl
     Print(L"Descriptor size: %d\n", desc_size);
 
     EFI_MEMORY_DESCRIPTOR *desc = buf;
-    for(int i = 0; (void*)desc < (void*)buf + size; i++) {
+
+    for(int i = 0; (void *)desc < (void *)buf + size; i++) {
         UINTN mapping_size = desc->NumberOfPages * EFI_PAGE_SIZE;
 
         Print(L"[#%.2d] Type: %s\n", i, memory_type_to_str(desc->Type));
         Print(L"      Attr: 0x%016llx\n", desc->Attribute);
         Print(L"      Phys: [0x%016llx - 0x%016llx]\n", desc->PhysicalStart, desc->PhysicalStart + mapping_size);
         Print(L"      Virt: [0x%016llx - 0x%016llx]\n", desc->VirtualStart, desc->VirtualStart + mapping_size);
-        desc = (void*)desc + desc_size;
+
+        desc = (void *)desc + desc_size;
     }
+
     free_pool(buf);
 
     return EFI_SUCCESS;
 }
 
-EFI_STATUS memory_map(EFI_MEMORY_DESCRIPTOR **map_buf, UINTN *map_size, UINTN *map_key, UINTN *desc_size, UINT32 *desc_version)
+EFI_STATUS memory_map(EFI_MEMORY_DESCRIPTOR **map_buf, UINTN *map_size, UINTN *map_key, UINTN *desc_size,
+                      UINT32 *desc_version)
 {
     EFI_STATUS err;
     *map_size = sizeof(**map_buf) * 32;
 
 get_map:
     err = allocate_pool(EfiLoaderData, *map_size, (void **)map_buf);
+
     if(err != EFI_SUCCESS) {
         Print(L"Failed to allocate pool for memory map");
         goto failed;
     }
 
     err = get_memory_map(map_size, *map_buf, map_key, desc_size, desc_version);
+
     if(err != EFI_SUCCESS) {
         if(err == EFI_BUFFER_TOO_SMALL) {
             free_pool((void *)*map_buf);
             *map_size += sizeof(**map_buf);
             goto get_map;
         }
+
         Print(L"Failed to get memory map");
         goto failed;
     }

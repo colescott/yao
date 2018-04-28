@@ -1,0 +1,14 @@
+style=mozilla
+indent=spaces=4
+convert-tabs
+max-code-length=120
+lineend=linux
+pad-oper, pad-comma, unpad-paren
+break-blocks
+align-pointer=name, align-reference=name
+add-braces
+attach-return-type
+
+# CLI Usability
+formatted
+suffix=none

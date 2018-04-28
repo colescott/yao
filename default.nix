@@ -9,9 +9,17 @@ stdenv.mkDerivation rec {
   buildInputs = with pkgs; [
     (import ./tools/gcc.nix)
     (import ./tools/binutils.nix)
+
+    # Formatting
+    astyle
+
+    # Emulation
     qemu OVMF
 
+    # UEFI
     gnu-efi
+
+    # Image creation
     parted mtools # For UEFI image building
   ];
 
