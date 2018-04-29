@@ -42,9 +42,11 @@ EFI_STATUS EFIAPI efi_main(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable
     Print(L"Descriptor size: %d\n", desc_size);
 
     EFI_MEMORY_DESCRIPTOR *desc = buf;
+    uint32_t total_pages = 0;
 
     for(int i = 0; (void *)desc < (void *)buf + size; i++) {
         UINTN mapping_size = desc->NumberOfPages * EFI_PAGE_SIZE;
+        total_pages += desc->NumberOfPages;
 
         Print(L"[#%.2d] Type: %s\n", i, memory_type_to_str(desc->Type));
         Print(L"      Attr: 0x%016llx\n", desc->Attribute);
@@ -54,6 +56,8 @@ EFI_STATUS EFIAPI efi_main(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable
         desc = (void *)desc + desc_size;
     }
 
+    Print(L"Total number of pages: 0x%016llx\n", total_pages);
+    Print(L"Total memory: 0x%016llx\n", total_pages * EFI_PAGE_SIZE);
     free_pool(buf);
 
     return EFI_SUCCESS;

@@ -1,13 +1,16 @@
-TARGET=x86_64
+ARCH=x86_64
+TARGET=$(ARCH)-elf
+EFI_TARGET=efi-app-x86_64
+
 BUILD_DIR=build
 FORMAT_DIRS=uefi/src
 
-CC=$(target)-gcc
-LD=$(target)-ld
-OBJCOPY=$(target)-objcopy
-QEMU=qemu-system-$(TARGET)
+CC=$(TARGET)-gcc
+LD=$(TARGET)-ld
+OBJCOPY=$(TARGET)-objcopy
+QEMU=qemu-system-$(ARCH)
 
-QEMU_FLAGS=-s -cpu qemu64 -bios ${OVMF_DIR}/OVMF.fd -net none
+QEMU_FLAGS=-s -cpu qemu64 -bios ${OVMF_DIR}/OVMF.fd -net none -m 1G
 
 .PHONY: all
 all:
@@ -27,9 +30,9 @@ clean:
 
 .PHONY: run
 run: $(BUILD_DIR)/uefi.img
-	$(QEMU) $(QEMU_FLAGS) -drive file=$<,if=ide
+	$(QEMU) $(QEMU_FLAGS) -drive file=$<,if=ide,format=raw
 
-$(BUILD_DIR)/uefi.img: $(BOOT_UEFI_BUILD_DIR)/main.efi
+$(BUILD_DIR)/uefi.img: $(UEFI_BUILD_DIR)/main.efi
 	dd if=/dev/zero of=$@ bs=512 count=93750
 	parted $@ -s -a minimal mklabel gpt
 	parted $@ -s -a minimal mkpart EFI FAT16 2048s 93716s
