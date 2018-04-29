@@ -21,8 +21,10 @@ stdenv.mkDerivation rec {
     gnu-efi
 
     # Image creation
-    parted
+    bc
+    dd
     mtools
+    parted
   ];
 
   GNU_EFI_DIR=pkgs.gnu-efi; # GNU EFI dir for headers
