@@ -22,7 +22,7 @@ stdenv.mkDerivation rec {
 
     # Image creation
     bc
-    dd
+    coreutils
     mtools
     parted
   ];
