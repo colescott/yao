@@ -3,7 +3,7 @@ TARGET=$(ARCH)-elf
 EFI_TARGET=efi-app-x86_64
 
 BUILD_DIR=build
-FORMAT_DIRS=uefi/src
+FORMAT_DIRS=boot/uefi
 
 CC=$(TARGET)-gcc
 LD=$(TARGET)-ld
@@ -22,7 +22,7 @@ include kernel/Makefile
 
 .PHONY: format
 format:
-	astyle --options=.astylerc $(wildcard $(FORMAT_DIRS)/*)
+	astyle --options=.astylerc $(wildcard $(FORMAT_DIRS)/*.c)
 
 .PHONY: clean
 clean:
