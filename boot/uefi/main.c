@@ -18,9 +18,9 @@ EFI_STATUS EFIAPI efi_main(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable
         return EFI_LOAD_ERROR;
     }
 
-    uefi_call_wrapper(ST->ConOut->SetAttribute, 2, ST->ConOut, EFI_LIGHTGRAY | EFI_BACKGROUND_BLUE);
-    uefi_call_wrapper(ST->ConOut->ClearScreen, 1, ST->ConOut);
-    uefi_call_wrapper(ST->ConOut->OutputString, 2, ST->ConOut, L"\n");
+    set_screen_attributes(EFI_LIGHTGRAY | EFI_BACKGROUND_BLUE);
+    clear_screen();
+    Print(L"\n");
 
     EFI_MEMORY_DESCRIPTOR *buf;
     UINTN desc_size;
@@ -31,10 +31,10 @@ EFI_STATUS EFIAPI efi_main(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable
     EFI_STATUS err = memory_map(&buf, &size, &map_key, &desc_size, &desc_version);
 
     if(err != EFI_SUCCESS) {
-        uefi_call_wrapper(ST->ConOut->OutputString, 2, ST->ConOut, L"Failed to get memory map!\n");
+        Print(L"Failed to get memory map!\n");
         return EFI_LOAD_ERROR;
     } else {
-        uefi_call_wrapper(ST->ConOut->OutputString, 2, ST->ConOut, L"Got memory map!\n");
+        Print(L"Got memory map!\n");
     }
 
     Print(L"Memory map size: %d\n", size);

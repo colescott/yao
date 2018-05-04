@@ -8,6 +8,13 @@ EFI_SYSTEM_TABLE *sys_table;
 EFI_BOOT_SERVICES *boot;
 EFI_RUNTIME_SERVICES *runtime;
 
+static inline EFI_STATUS set_screen_attributes(UINT64 attributes) {
+    return uefi_call_wrapper(ST->ConOut->SetAttribute, 2, ST->ConOut, attributes);
+}
+static inline EFI_STATUS clear_screen() {
+    return uefi_call_wrapper(ST->ConOut->ClearScreen, 1, ST->ConOut);
+}
+
 static inline EFI_STATUS allocate_pages(EFI_ALLOCATE_TYPE atype, EFI_MEMORY_TYPE mtype, UINTN num_pages,
                                         EFI_PHYSICAL_ADDRESS *memory)
 {
