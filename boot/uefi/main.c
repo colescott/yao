@@ -69,27 +69,24 @@ EFI_STATUS memory_map(EFI_MEMORY_DESCRIPTOR **map_buf, UINTN *map_size, UINTN *m
     EFI_STATUS err;
     *map_size = sizeof(**map_buf) * 32;
 
-get_map:
-    err = allocate_pool(EfiLoaderData, *map_size, (void **)map_buf);
-
-    if(err != EFI_SUCCESS) {
-        Print(L"Failed to allocate pool for memory map");
-        goto failed;
-    }
-
-    err = get_memory_map(map_size, *map_buf, map_key, desc_size, desc_version);
-
-    if(err != EFI_SUCCESS) {
-        if(err == EFI_BUFFER_TOO_SMALL) {
-            free_pool((void *)*map_buf);
-            *map_size += sizeof(**map_buf);
-            goto get_map;
+    err = EFI_BUFFER_TOO_SMALL;
+    while (err == EFI_BUFFER_TOO_SMALL) {
+        err = allocate_pool(EfiLoaderData, *map_size, (void **)map_buf);
+        if(err != EFI_SUCCESS) {
+            Print(L"Failed to allocate pool for memory map");
+            return err;
         }
 
-        Print(L"Failed to get memory map");
-        goto failed;
+        err = get_memory_map(map_size, *map_buf, map_key, desc_size, desc_version);
+        if (err == EFI_BUFFER_TOO_SMALL) {
+                free_pool((void *)*map_buf);
+                *map_size += sizeof(**map_buf);
+        }
     }
 
-failed:
+    if (err != EFI_SUCCESS) {
+        Print(L"Failed to get memory map");
+    }
+
     return err;
 }
