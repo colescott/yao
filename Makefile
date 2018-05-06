@@ -48,5 +48,7 @@ $(BUILD_DIR)/uefi.img: $(UEFI_BUILD_DIR)/main.efi
 	parted $@ -s -a minimal toggle 1 boot
 	dd if=/dev/zero of=$(BUILD_DIR)/tmp.img bs=$(BLOCK_SIZE) count=$(EFI_SIZE)
 	mformat -i $(BUILD_DIR)/tmp.img -h 32 -t 32 -n 64 -c 1
-	mcopy -i $(BUILD_DIR)/tmp.img $< ::
+	mmd -i build/tmp.img ::/EFI
+	mmd -i build/tmp.img ::/EFI/BOOT
+	mcopy -i $(BUILD_DIR)/tmp.img $< ::/EFI/BOOT/BOOTX64.EFI
 	dd if=$(BUILD_DIR)/tmp.img of=$@ bs=$(BLOCK_SIZE) count=$(EFI_SIZE) seek=$(EFI_START) conv=notrunc
