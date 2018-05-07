@@ -9,6 +9,7 @@ stdenv.mkDerivation rec {
   buildInputs = with pkgs; [
     (import ./tools/gcc.nix)
     (import ./tools/binutils.nix)
+    nasm
 
     # Formatting
     astyle
