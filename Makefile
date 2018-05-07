@@ -57,4 +57,4 @@ $(BUILD_DIR)/boot.img: $(UEFI_BUILD_DIR)/main.efi $(MBR_BUILD_DIR)/mbr
 	mmd -i build/tmp.img ::/EFI/BOOT
 	mcopy -i $(BUILD_DIR)/tmp.img $(UEFI_BUILD_DIR)/main.efi ::/EFI/BOOT/BOOTX64.EFI
 	dd if=$(BUILD_DIR)/tmp.img of=$@ bs=$(BLOCK_SIZE) count=$(EFI_SIZE) seek=$(EFI_START) conv=notrunc
-	dd if=$(MBR_BUILD_DIR)/mbr of=$@ bs=448 count=1 conv=notrunc
+	dd if=$(MBR_BUILD_DIR)/mbr of=$@ bs=446 count=1 conv=notrunc
