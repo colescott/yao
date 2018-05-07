@@ -10,7 +10,7 @@ LD=$(TARGET)-ld
 OBJCOPY=$(TARGET)-objcopy
 QEMU=qemu-system-$(ARCH)
 
-QEMU_FLAGS=-s -cpu qemu64 -bios ${OVMF_DIR}/OVMF.fd -net none -m 1G
+QEMU_FLAGS=-s -cpu qemu64 -net none -m 1G
 
 .PHONY: all
 all:
@@ -29,8 +29,14 @@ clean:
 	rm -rf $(BUILD_DIR)
 
 .PHONY: run
-run: $(BUILD_DIR)/uefi.img
+run:
+	@echo "make run is deprecated, use make run-efi or make run-mbr"
+
+run-mbr: $(BUILD_DIR)/boot.img
 	$(QEMU) $(QEMU_FLAGS) -drive file=$<,if=ide,format=raw
+
+run-efi: $(BUILD_DIR)/boot.img
+	$(QEMU) $(QEMU_FLAGS) -bios ${OVMF_DIR}/OVMF.fd -drive file=$<,if=ide,format=raw
 
 BLOCK_SIZE=512
 DISK_SIZE=$(shell echo "48 * 1024 * 1024 / $(BLOCK_SIZE)" | bc)
@@ -40,8 +46,7 @@ EFI_START=34
 EFI_END=$(shell echo "$(DISK_SIZE) - 34" | bc)
 EFI_SIZE=$(shell echo "$(EFI_END) - $(EFI_START)" | bc)
 
-
-$(BUILD_DIR)/uefi.img: $(UEFI_BUILD_DIR)/main.efi
+$(BUILD_DIR)/boot.img: $(UEFI_BUILD_DIR)/main.efi $(MBR_BUILD_DIR)/mbr
 	dd if=/dev/zero of=$@ bs=$(BLOCK_SIZE) count=$(DISK_SIZE)
 	parted $@ -s -a minimal mklabel gpt
 	parted $@ -s -a minimal -- mkpart EFI FAT16 $(EFI_START)s $(EFI_END)s
@@ -50,5 +55,6 @@ $(BUILD_DIR)/uefi.img: $(UEFI_BUILD_DIR)/main.efi
 	mformat -i $(BUILD_DIR)/tmp.img -h 32 -t 32 -n 64 -c 1
 	mmd -i build/tmp.img ::/EFI
 	mmd -i build/tmp.img ::/EFI/BOOT
-	mcopy -i $(BUILD_DIR)/tmp.img $< ::/EFI/BOOT/BOOTX64.EFI
+	mcopy -i $(BUILD_DIR)/tmp.img $(UEFI_BUILD_DIR)/main.efi ::/EFI/BOOT/BOOTX64.EFI
 	dd if=$(BUILD_DIR)/tmp.img of=$@ bs=$(BLOCK_SIZE) count=$(EFI_SIZE) seek=$(EFI_START) conv=notrunc
+	dd if=$(MBR_BUILD_DIR)/mbr of=$@ bs=448 count=1 conv=notrunc
