@@ -115,7 +115,7 @@ e820_error_msg: db 'Getting e820 memory map failed!', 0
 ; $$ = address of beginning of program
 ; $ = address of current position
 ; ($-$$) = offset from beginning of file (length in bytes of all code up to this point)
-times 448 - ($-$$) db 'Z'
+times 446 - ($-$$) db 'Z'
 
 ; < MBR partitions goes here >
 
