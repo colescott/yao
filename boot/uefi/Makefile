@@ -13,7 +13,8 @@ UEFI_LDFLAGS=-nostdlib -znocombreloc -shared -Bsymbolic $(GNU_EFI_LDFLAGS)
 UEFI_OBJCOPY_SECTIONS=.text .sdata .data .dynamic .dynsym .rel .rela .reloc
 UEFI_OBJCOPY_FLAGS=$(foreach s,$(UEFI_OBJCOPY_SECTIONS),-j $(s)) --target=$(EFI_TARGET)
 
-$(UEFI_BUILD_DIR)/%.o: $(UEFI_SRC_DIR)/%.c $(UEFI_BUILD_DIR)
+.SECONDEXPANSION:
+$(UEFI_BUILD_DIR)/%.o: $(UEFI_SRC_DIR)/%.c | $$(@D)/.
 	$(CC) $< $(UEFI_CFLAGS) -o $@
 
 $(UEFI_BUILD_DIR)/main.so: $(UEFI_OBJ_FILES)
@@ -21,7 +22,4 @@ $(UEFI_BUILD_DIR)/main.so: $(UEFI_OBJ_FILES)
 
 $(UEFI_BUILD_DIR)/main.efi: $(UEFI_BUILD_DIR)/main.so
 	$(OBJCOPY) $(UEFI_OBJCOPY_FLAGS) $< $@
-
-$(UEFI_BUILD_DIR):
-	mkdir -p $(UEFI_BUILD_DIR)
 

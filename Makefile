@@ -16,6 +16,14 @@ QEMU_FLAGS=-s -cpu qemu64 -net none -m 1G
 all:
 	@echo "There is no sensible default"
 
+.PRECIOUS: $(BUILD_DIR)/. $(BUILD_DIR)%/.
+
+$(BUILD_DIR)/.:
+	@mkdir -p $@
+
+$(BUILD_DIR)%/.:
+	@mkdir -p $@
+
 include boot/mbr/Makefile
 include boot/uefi/Makefile
 include kernel/Makefile
